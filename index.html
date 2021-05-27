@@ -55,18 +55,107 @@
     <button>Trigger a Global Error</button>
   </section>
 
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
   <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "910e2de8080240289da498d918c0315f"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+  </script>
+
+  <script>
+
+    class NaNError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "Conversion Error: Value converted to NaN";
+      }
+    }
+
+    window.onerror = () => {
+        console.log("Sadly an error happened friend");
+        TrackJS.track('Testing TrackJS!');
+    };
+
     let calculateBtn = document.querySelector('#calculate');
     calculateBtn.addEventListener('click', () => {
       let output = document.querySelector('output');
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      try {
+        if(firstNum == ''){
+          firstNum = 0;
+        }
+        if(secondNum == ''){
+          secondNum = 0;
+        }
+        if(isNaN(parseInt(firstNum)) || isNaN(parseInt(secondNum))) {
+          throw new NaNError("Sadly an error happened friend");
+        }
+      } 
+      catch (err) {
+        console.log(err.message);
+        console.error(err.name);
+      }
+      finally {
+        output.innerHTML = "Result: " + eval(`${parseInt(firstNum)} ${operator} ${parseInt(secondNum)}`);
+      }
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
+
     // TODO - Make buttons functional
+
+    errorBtns[0].addEventListener("click", () => {
+      console.log("Console Log Demo");
+    });
+
+    errorBtns[1].addEventListener("click", () => {
+      console.error("Console Error Demo");
+    });
+
+    errorBtns[2].addEventListener("click", () => {
+      console.dir(errorBtns[2]);
+    });
+
+    errorBtns[3].addEventListener("click", () => {
+      console.dirxml(document.querySelector("body"));
+    });
+
+    errorBtns[4].addEventListener("click", () => {
+      console.group("Log Group");
+    });
+
+    errorBtns[5].addEventListener("click", () => {
+      console.groupEnd("Log Group");
+    });
+
+    errorBtns[6].addEventListener("click", () => {
+      console.table([["Software Engineering", 110], ["Programming Language", 130], ["Advanced Software Engineering", 112]]);
+    });
+
+    errorBtns[7].addEventListener("click", () => {
+      console.log("Timer started!");
+      console.time("timer");
+    });
+
+    errorBtns[8].addEventListener("click", () => {
+      console.log("Timer ended!");
+      console.timeEnd("timer");
+    });
+
+    const onClick = () => { traceTest(); };
+    const traceTest = () => { deep(); };
+    const deep = () => { deeper(); };
+    const deeper = () => { deepest(); };
+    const deepest = () => { console.trace(); };
+
+    errorBtns[9].addEventListener("click", onClick);
+
+    errorBtns[10].addEventListener("click", () => {
+      console.log(boom);
+    });
   </script>
 </body>
 </html>
